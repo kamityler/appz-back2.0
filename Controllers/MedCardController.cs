@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Lab5LKPZ.Controllers
@@ -22,8 +23,23 @@ namespace Lab5LKPZ.Controllers
             {
                 return Ok(await this.dbContext.MedicalRecords.ToListAsync());
             }
+            [HttpGet]
+            [Route("{id:int}")]
+            public async Task<IActionResult> GetMedicalRecordById([FromRoute] int id)
+            {
+                var record = await dbContext.MedicalRecords.FindAsync(id);
+                if (record != null)
+                {
+                    return Ok(record);
+                }
 
-            [HttpPost]
+                return NotFound();
+            }
+           
+        
+
+
+        [HttpPost]
             public async Task<IActionResult> AddMedicalRecord(Model.MedicalRecordModel medicalRecord)
             {
                 var record = new Model.MedicalRecordModel()
@@ -98,6 +114,38 @@ namespace Lab5LKPZ.Controllers
                     dbContext.MedicalRecords.Remove(record);
                     await dbContext.SaveChangesAsync();
                     return Ok(record);
+                }
+
+                return NotFound();
+            }
+            [HttpGet("GetPatients")]
+            public async Task<IActionResult> GetPatients(
+            [FromQuery] string lastName,
+            [FromQuery] string firstName,
+            [FromQuery] string middleName)
+            {
+                var patientsQuery = dbContext.MedicalRecords.AsQueryable();
+
+                if (!string.IsNullOrEmpty(lastName))
+                {
+                    patientsQuery = patientsQuery.Where(p => p.LastName == lastName);
+                }
+
+                if (!string.IsNullOrEmpty(firstName))
+                {
+                    patientsQuery = patientsQuery.Where(p => p.FirstName == firstName);
+                }
+
+                if (!string.IsNullOrEmpty(middleName))
+                {
+                    patientsQuery = patientsQuery.Where(p => p.MiddleName == middleName);
+                }
+
+                var patients = await patientsQuery.ToListAsync();
+
+                if (patients.Any())
+                {
+                    return Ok(patients);
                 }
 
                 return NotFound();
