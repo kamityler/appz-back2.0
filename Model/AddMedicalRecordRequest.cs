@@ -26,5 +26,7 @@ namespace Lab5LKPZ.Model
         public string Immunizations { get; set; }
         public string DoctorsNotes { get; set; }
         public string EmergencyContacts { get; set; }
+        public MedicalRecordModel MedicalRecord { get; set; }
+
     }
 }
