@@ -70,19 +70,6 @@ namespace Lab5LKPZ.Controllers
                 return Ok(record);
             }
 
-            [HttpGet]
-            [Route("{id:int}")]
-            public async Task<IActionResult> GetMedicalRecordById([FromRoute] int id)
-            {
-                var record = await dbContext.MedicalRecords.FindAsync(id);
-                if (record != null)
-                {
-                    return Ok(record);
-                }
-
-                return NotFound();
-            }
-
             [HttpPut]
             [Route("{id:int}")]
             public async Task<IActionResult> UpdateMedicalRecord([FromRoute] int id, Model.UpdateMedicalRecordRequest updateMedicalRecordRequest)
