@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Lab5LKPZ.Model;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,10 +26,20 @@ namespace Lab5LKPZ.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<MedicalAppointmentModel>()
+          .HasOne(m => m.MedicalRecord)
+          .WithMany(r => r.Appointments)
+          .HasForeignKey(m => m.PatientID);
 
+            // інші конфігурації можна додати тут
+
+            base.OnModelCreating(modelBuilder);
+
+            
         }
         public DbSet<Model.MedicalRecordModel> MedicalRecords { get; set; }
-        
+        public DbSet<Model.MedicalAppointmentModel> MedicalAppointment { get; set; }
+
 
     }
 }
