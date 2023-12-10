@@ -19,7 +19,7 @@ namespace Lab5LKPZ.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 
-            optionsBuilder.UseSqlServer("server=PC305\\SQLEXPRESS;database=Medcard;Trusted_Connection=true");
+            optionsBuilder.UseSqlServer("server=DESKTOP-SR4JFTJ\\MSSQLSERVER01;database=Medcard;Trusted_Connection=true");
 
         }
 
