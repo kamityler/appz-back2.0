@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Lab5LKPZ.Model;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,29 +19,81 @@ namespace Lab5LKPZ.Controllers
             {
                 this.dbContext = dbContext;
             }
+            
 
             [HttpGet]
             public async Task<IActionResult> GetMedicalRecords()
             {
-                return Ok(await this.dbContext.MedicalRecords.ToListAsync());
+                return Ok(await this.dbContext.MedicalRecords.Include(m => m.Appointments).ToListAsync());
+            }
+
+            [HttpGet("Appointments")]
+            public async Task<IActionResult> GetMedicalAppointments()
+            {
+                var appointments = await dbContext.MedicalAppointment.ToListAsync();
+                return Ok(appointments);
+            }
+            [HttpGet("{id:int}/Appointments")]
+            public async Task<IActionResult> GetMedicalRecordAppointments([FromRoute] int id)
+            {
+                var record = await dbContext.MedicalRecords.Include(m => m.Appointments).FirstOrDefaultAsync(m => m.PatientID == id);
+
+                if (record != null)
+                {
+                    return Ok(record.Appointments);
+                }
+
+                return NotFound();
             }
             [HttpGet]
             [Route("{id:int}")]
             public async Task<IActionResult> GetMedicalRecordById([FromRoute] int id)
             {
-                var record = await dbContext.MedicalRecords.FindAsync(id);
-                if (record != null)
+                try
                 {
-                    return Ok(record);
+                    var medicalRecord = await dbContext.MedicalRecords
+                        .Include(m => m.Appointments) // Якщо ви хочете включити призначення
+                        .FirstOrDefaultAsync(m => m.PatientID == id);
+
+                    if (medicalRecord == null)
+                    {
+                        return NotFound(); // Повертаємо 404, якщо медичний запис не знайдено
+                    }
+
+                    return Ok(medicalRecord); // Повертаємо успішний результат знайденого медичного запису
                 }
-
-                return NotFound();
+                catch (Exception ex)
+                {
+                    // Обробка можливих помилок
+                    return StatusCode(500, $"Internal Server Error: {ex.Message}");
+                }
             }
-           
-        
 
+         
 
-        [HttpPost]
+            [HttpPost]
+            [Route("{id:int}/Appointments")]
+
+            public async Task<IActionResult> AddMedicalAppointment([FromRoute] int id,[FromBody] Model.AddMedicalAppointmentModel medicalAppointment)
+            {
+
+                var record = new Model.MedicalAppointmentModel()
+                {
+                    PatientID = id,
+                    Diagnosis = medicalAppointment.Diagnosis,
+                    AppointmentDate = medicalAppointment.AppointmentDate,
+                    Doctor = medicalAppointment.Doctor,
+                    Description = medicalAppointment.Description,
+                    Treatment = medicalAppointment.Treatment
+                };
+
+                await dbContext.MedicalAppointment.AddAsync(record);
+                await dbContext.SaveChangesAsync();
+                return Ok(record);
+
+          
+            }
+            [HttpPost]
             public async Task<IActionResult> AddMedicalRecord(Model.MedicalRecordModel medicalRecord)
             {
                 var record = new Model.MedicalRecordModel()

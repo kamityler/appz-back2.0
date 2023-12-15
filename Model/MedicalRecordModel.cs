@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Lab5LKPZ.Model
@@ -29,6 +30,7 @@ namespace Lab5LKPZ.Model
         public string Immunizations { get; set; }
         public string DoctorsNotes { get; set; }
         public string EmergencyContacts { get; set; }
+        public  List<MedicalAppointmentModel> Appointments { get; set; }
 
     }
 }
