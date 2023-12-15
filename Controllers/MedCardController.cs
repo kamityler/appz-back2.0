@@ -26,13 +26,13 @@ namespace Lab5LKPZ.Controllers
             {
                 return Ok(await this.dbContext.MedicalRecords.Include(m => m.Appointments).ToListAsync());
             }
-
             [HttpGet("Appointments")]
             public async Task<IActionResult> GetMedicalAppointments()
             {
                 var appointments = await dbContext.MedicalAppointment.ToListAsync();
                 return Ok(appointments);
             }
+            
             [HttpGet("{id:int}/Appointments")]
             public async Task<IActionResult> GetMedicalRecordAppointments([FromRoute] int id)
             {
@@ -52,28 +52,23 @@ namespace Lab5LKPZ.Controllers
                 try
                 {
                     var medicalRecord = await dbContext.MedicalRecords
-                        .Include(m => m.Appointments) // Якщо ви хочете включити призначення
+                        .Include(m => m.Appointments)
                         .FirstOrDefaultAsync(m => m.PatientID == id);
 
                     if (medicalRecord == null)
                     {
-                        return NotFound(); // Повертаємо 404, якщо медичний запис не знайдено
+                        return NotFound();
                     }
 
-                    return Ok(medicalRecord); // Повертаємо успішний результат знайденого медичного запису
+                    return Ok(medicalRecord);
                 }
                 catch (Exception ex)
                 {
-                    // Обробка можливих помилок
                     return StatusCode(500, $"Internal Server Error: {ex.Message}");
                 }
             }
-
-         
-
             [HttpPost]
             [Route("{id:int}/Appointments")]
-
             public async Task<IActionResult> AddMedicalAppointment([FromRoute] int id,[FromBody] Model.AddMedicalAppointmentModel medicalAppointment)
             {
 
@@ -123,7 +118,6 @@ namespace Lab5LKPZ.Controllers
                 await dbContext.SaveChangesAsync();
                 return Ok(record);
             }
-
             [HttpPut]
             [Route("{id:int}")]
             public async Task<IActionResult> UpdateMedicalRecord([FromRoute] int id, Model.UpdateMedicalRecordRequest updateMedicalRecordRequest)
@@ -157,7 +151,6 @@ namespace Lab5LKPZ.Controllers
 
                 return NotFound();
             }
-
             [HttpDelete]
             [Route("{id:int}")]
             public async Task<IActionResult> DeleteMedicalRecord([FromRoute] int id)
