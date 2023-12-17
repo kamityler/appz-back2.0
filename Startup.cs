@@ -32,19 +32,14 @@ namespace Lab5LKPZ
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-           
-
-
-
             services.AddControllers(options => options.EnableEndpointRouting = false);
             services.AddCors(options =>
             {
-                options.AddPolicy(name: MyAllowSpecificOrigins,
-                                  policy =>
-                                  {
-                                      policy.WithOrigins("http://example.com",
-                                                          "http://www.contoso.com");
-                                  });
+                options.AddPolicy("AllowSpecificOrigin",
+                                  policy => policy
+                                    .WithOrigins("http://localhost:3000")
+                                    .AllowAnyHeader()
+                                    .AllowAnyMethod());
             });
             services.AddSwaggerGen(c =>
             {
@@ -71,7 +66,7 @@ namespace Lab5LKPZ
             app.UseHttpsRedirection();
 
             app.UseRouting();
-            app.UseCors(MyAllowSpecificOrigins);
+            app.UseCors("AllowSpecificOrigin");
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
