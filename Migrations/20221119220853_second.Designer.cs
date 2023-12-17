@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Lab5LKPZ.Migrations
 {
-    [DbContext(typeof(BooksApiDbContext))]
+    [DbContext(typeof(MedicalApiDbContext))]
     [Migration("20221119220853_second")]
     partial class second
     {

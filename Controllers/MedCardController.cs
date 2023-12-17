@@ -1,9 +1,13 @@
-﻿using Lab5LKPZ.Model;
+﻿using Lab5LKPZ.Data;
+using Lab5LKPZ.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Lab5LKPZ.Mapping;
+using Lab5LKPZ.Command;
 
 namespace Lab5LKPZ.Controllers
 {
@@ -13,18 +17,24 @@ namespace Lab5LKPZ.Controllers
         [Route("api/[controller]")]
         public class MedicalRecordsController : Controller
         {
-            private readonly Data.BooksApiDbContext dbContext;
+            private readonly MedicalApiDbContext dbContext;
 
-            public MedicalRecordsController(Data.BooksApiDbContext dbContext)
+           // private readonly Data.MedicalApiDbContext dbContext;
+
+            public MedicalRecordsController(Data.MedicalApiDbContext dbContext)
             {
-                this.dbContext = dbContext;
+                this.dbContext = MedicalApiDbContext.Instance;
             }
             
 
             [HttpGet]
             public async Task<IActionResult> GetMedicalRecords()
             {
-                return Ok(await this.dbContext.MedicalRecords.Include(m => m.Appointments).ToListAsync());
+                var command = new GetMedicalRecordsCommand(dbContext);
+                var invoker = new CommandInvoker();
+                invoker.SetCommand(command);
+
+                return await invoker.ExecuteCommand();
             }
 
             [HttpGet("Appointments")]
@@ -49,24 +59,11 @@ namespace Lab5LKPZ.Controllers
             [Route("{id:int}")]
             public async Task<IActionResult> GetMedicalRecordById([FromRoute] int id)
             {
-                try
-                {
-                    var medicalRecord = await dbContext.MedicalRecords
-                        .Include(m => m.Appointments) // Якщо ви хочете включити призначення
-                        .FirstOrDefaultAsync(m => m.PatientID == id);
+                var command = new GetMedicalRecordByIdCommand(dbContext,id);
+                var invoker = new CommandInvoker();
+                invoker.SetCommand(command);
 
-                    if (medicalRecord == null)
-                    {
-                        return NotFound(); // Повертаємо 404, якщо медичний запис не знайдено
-                    }
-
-                    return Ok(medicalRecord); // Повертаємо успішний результат знайденого медичного запису
-                }
-                catch (Exception ex)
-                {
-                    // Обробка можливих помилок
-                    return StatusCode(500, $"Internal Server Error: {ex.Message}");
-                }
+                return await invoker.ExecuteCommand();
             }
 
          
@@ -77,49 +74,34 @@ namespace Lab5LKPZ.Controllers
             public async Task<IActionResult> AddMedicalAppointment([FromRoute] int id,[FromBody] Model.AddMedicalAppointmentModel medicalAppointment)
             {
 
-                var record = new Model.MedicalAppointmentModel()
-                {
-                    PatientID = id,
-                    Diagnosis = medicalAppointment.Diagnosis,
-                    AppointmentDate = medicalAppointment.AppointmentDate,
-                    Doctor = medicalAppointment.Doctor,
-                    Description = medicalAppointment.Description,
-                    Treatment = medicalAppointment.Treatment
-                };
+                var record = MedicalAppointmentDataMapper.MapToEntity(medicalAppointment);
+                record.PatientID = id;
+                var medicalRecord = await dbContext.MedicalRecords
+                        .Include(m => m.Appointments) // Якщо ви хочете включити призначення
+                        .FirstOrDefaultAsync(m => m.PatientID == id);
 
+                if (medicalRecord == null)
+                {
+                    return BadRequest(); // Повертаємо 404, якщо медичний запис не знайдено
+                }
                 await dbContext.MedicalAppointment.AddAsync(record);
+
                 await dbContext.SaveChangesAsync();
                 return Ok(record);
 
           
             }
             [HttpPost]
-            public async Task<IActionResult> AddMedicalRecord(Model.MedicalRecordModel medicalRecord)
+            public async Task<IActionResult> AddMedicalRecord(Model.AddMedicalRecordRequest medicalRecord)
             {
-                var record = new Model.MedicalRecordModel()
-                {
-                    LastName = medicalRecord.LastName,
-                    FirstName = medicalRecord.FirstName,
-                    MiddleName = medicalRecord.MiddleName,
-                    DateOfBirth = medicalRecord.DateOfBirth,
-                    Gender = medicalRecord.Gender,
-                    Address = medicalRecord.Address,
-                    PhoneNumber = medicalRecord.PhoneNumber,
-                    Email = medicalRecord.Email,
-                    VisitDates = medicalRecord.VisitDates,
-                    PreviousIllnesses = medicalRecord.PreviousIllnesses,
-                    Surgeries = medicalRecord.Surgeries,
-                    Allergies = medicalRecord.Allergies,
-                    Medications = medicalRecord.Medications,
-                    DosageInstructions = medicalRecord.DosageInstructions,
-                    LabTestDate = medicalRecord.LabTestDate,
-                    LabTestResults = medicalRecord.LabTestResults,
-                    Immunizations = medicalRecord.Immunizations,
-                    DoctorsNotes = medicalRecord.DoctorsNotes,
-                    EmergencyContacts = medicalRecord.EmergencyContacts
-                };
+                var record = Mapping.MedicalRecordDataMapper.MapToEntity(medicalRecord);
 
+                if (record.FirstName == null || record.LastName == null || record.MiddleName == null || Regex.IsMatch(record.FirstName, @"\d"))
+                {
+                    return BadRequest();
+                }
                 await dbContext.MedicalRecords.AddAsync(record);
+
                 await dbContext.SaveChangesAsync();
                 return Ok(record);
             }
@@ -131,26 +113,32 @@ namespace Lab5LKPZ.Controllers
                 var record = await dbContext.MedicalRecords.FindAsync(id);
                 if (record != null)
                 {
-                    record.LastName = updateMedicalRecordRequest.LastName;
-                    record.FirstName = updateMedicalRecordRequest.FirstName;
-                    record.MiddleName = updateMedicalRecordRequest.MiddleName;
-                    record.DateOfBirth = updateMedicalRecordRequest.DateOfBirth;
-                    record.Gender = updateMedicalRecordRequest.Gender;
-                    record.Address = updateMedicalRecordRequest.Address;
-                    record.PhoneNumber = updateMedicalRecordRequest.PhoneNumber;
-                    record.Email = updateMedicalRecordRequest.Email;
-                    record.VisitDates = updateMedicalRecordRequest.VisitDates;
-                    record.PreviousIllnesses = updateMedicalRecordRequest.PreviousIllnesses;
-                    record.Surgeries = updateMedicalRecordRequest.Surgeries;
-                    record.Allergies = updateMedicalRecordRequest.Allergies;
-                    record.Medications = updateMedicalRecordRequest.Medications;
-                    record.DosageInstructions = updateMedicalRecordRequest.DosageInstructions;
-                    record.LabTestDate = updateMedicalRecordRequest.LabTestDate;
-                    record.LabTestResults = updateMedicalRecordRequest.LabTestResults;
-                    record.Immunizations = updateMedicalRecordRequest.Immunizations;
-                    record.DoctorsNotes = updateMedicalRecordRequest.DoctorsNotes;
-                    record.EmergencyContacts = updateMedicalRecordRequest.EmergencyContacts;
 
+                    record = Mapping.MedicalRecordDataMapper.MapToEntity(updateMedicalRecordRequest, record);
+                  
+                    //  record.LastName = updateMedicalRecordRequest.LastName;
+                  //  record.FirstName = updateMedicalRecordRequest.FirstName;
+                  //  record.MiddleName = updateMedicalRecordRequest.MiddleName;
+                  ////  record.DateOfBirth = updateMedicalRecordRequest.DateOfBirth;
+                  //  record.Gender = updateMedicalRecordRequest.Gender;
+                  //  record.Address = updateMedicalRecordRequest.Address;
+                  //  record.PhoneNumber = updateMedicalRecordRequest.PhoneNumber;
+                  //  record.Email = updateMedicalRecordRequest.Email;
+                  //  record.VisitDates = updateMedicalRecordRequest.VisitDates;
+                  //  record.PreviousIllnesses = updateMedicalRecordRequest.PreviousIllnesses;
+                  //  record.Surgeries = updateMedicalRecordRequest.Surgeries;
+                  //  record.Allergies = updateMedicalRecordRequest.Allergies;
+                  //  record.Medications = updateMedicalRecordRequest.Medications;
+                  //  record.DosageInstructions = updateMedicalRecordRequest.DosageInstructions;
+                  ////  record.LabTestDate = updateMedicalRecordRequest.LabTestDate;
+                  //  record.LabTestResults = updateMedicalRecordRequest.LabTestResults;
+                  //  record.Immunizations = updateMedicalRecordRequest.Immunizations;
+                  //  record.DoctorsNotes = updateMedicalRecordRequest.DoctorsNotes;
+                  //  record.EmergencyContacts = updateMedicalRecordRequest.EmergencyContacts;
+                    if(record.FirstName == "" || record.MiddleName=="" || record.LastName == "")
+                    {
+                        return BadRequest(record);
+                    }
                     await dbContext.SaveChangesAsync();
                     return Ok(record);
                 }

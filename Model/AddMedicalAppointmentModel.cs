@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Lab5LKPZ.Interfaces;
+using System;
 
 namespace Lab5LKPZ.Model
 {
-    public class AddMedicalAppointmentModel
+    public class AddMedicalAppointmentModel : IMedicalAppointments
     {
-        public int AppointmentID { get; set; }
+        
         public int PatientID { get; set; }
         public string Diagnosis { get; set; }
         public DateTime AppointmentDate { get; set; }
