@@ -1,6 +1,9 @@
 /bin
 /obj
+<<<<<<< HEAD
+=======
 .Lab5LKPZ.csproj
 .Lab5LKPZ.csproj.user
 Startup.cs
 /data/BooksApiDbContext.cs
+>>>>>>> origin/addGetById

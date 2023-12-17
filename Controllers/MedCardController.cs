@@ -37,7 +37,6 @@ namespace Lab5LKPZ.Controllers
 
                 return await invoker.ExecuteCommand();
             }
-
             [HttpGet("Appointments")]
             public async Task<IActionResult> GetMedicalAppointments()
             {
@@ -47,6 +46,7 @@ namespace Lab5LKPZ.Controllers
 
                 return await invoker.ExecuteCommand();
             }
+            
             [HttpGet("{id:int}/Appointments")]
             public async Task<IActionResult> GetMedicalRecordAppointments([FromRoute] int id)
             {
@@ -60,18 +60,34 @@ namespace Lab5LKPZ.Controllers
             [Route("{id:int}")]
             public async Task<IActionResult> GetMedicalRecordById([FromRoute] int id)
             {
+<<<<<<< HEAD
                 var command = new GetMedicalRecordByIdCommand(dbContext,id);
               
                 invoker.SetCommand(command);
 
                 return await invoker.ExecuteCommand();
+=======
+                try
+                {
+                    var medicalRecord = await dbContext.MedicalRecords
+                        .Include(m => m.Appointments)
+                        .FirstOrDefaultAsync(m => m.PatientID == id);
+
+                    if (medicalRecord == null)
+                    {
+                        return NotFound();
+                    }
+
+                    return Ok(medicalRecord);
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, $"Internal Server Error: {ex.Message}");
+                }
+>>>>>>> bd96b5e16b379a3ec72b3dcfebe559a24918338d
             }
-
-         
-
             [HttpPost]
             [Route("{id:int}/Appointments")]
-
             public async Task<IActionResult> AddMedicalAppointment([FromRoute] int id,[FromBody] Model.AddMedicalAppointmentModel medicalAppointment)
             {
 
@@ -91,7 +107,6 @@ namespace Lab5LKPZ.Controllers
 
                 return await invoker.ExecuteCommand();
             }
-
             [HttpPut]
             [Route("{id:int}")]
             public async Task<IActionResult> UpdateMedicalRecord([FromRoute] int id, Model.UpdateMedicalRecordRequest updateMedicalRecordRequest)
@@ -102,7 +117,6 @@ namespace Lab5LKPZ.Controllers
 
                 return await invoker.ExecuteCommand();
             }
-
             [HttpDelete]
             [Route("{id:int}")]
             public async Task<IActionResult> DeleteMedicalRecord([FromRoute] int id)
