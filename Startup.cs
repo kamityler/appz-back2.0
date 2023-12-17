@@ -50,7 +50,11 @@ namespace Lab5LKPZ
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Lab5LKPZ", Version = "v1" });
             });
+<<<<<<< HEAD
+            services.AddDbContext<Data.MedicalApiDbContext>(options => options.UseSqlServer("server=DESKTOP-SR4JFTJ\\MSSQLSERVER01;database=Medcard;Trusted_Connection=true"));
+=======
             services.AddDbContext<Data.BooksApiDbContext>(options => options.UseSqlServer("server=PC305\\SQLEXPRESS;database=MedCard;Trusted_Connection=true"));
+>>>>>>> bd96b5e16b379a3ec72b3dcfebe559a24918338d
 
         }
 
