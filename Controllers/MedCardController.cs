@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Lab5LKPZ.Mapping;
 using Lab5LKPZ.Command;
+using Lab5LKPZ.Interfaces;
 
 namespace Lab5LKPZ.Controllers
 {
@@ -18,12 +19,12 @@ namespace Lab5LKPZ.Controllers
         public class MedicalRecordsController : Controller
         {
             private readonly MedicalApiDbContext dbContext;
-
-           // private readonly Data.MedicalApiDbContext dbContext;
+            private readonly CommandInvoker invoker;           // private readonly Data.MedicalApiDbContext dbContext;
 
             public MedicalRecordsController(Data.MedicalApiDbContext dbContext)
             {
                 this.dbContext = MedicalApiDbContext.Instance;
+                this.invoker = new CommandInvoker(); 
             }
             
 
@@ -31,7 +32,7 @@ namespace Lab5LKPZ.Controllers
             public async Task<IActionResult> GetMedicalRecords()
             {
                 var command = new GetMedicalRecordsCommand(dbContext);
-                var invoker = new CommandInvoker();
+                
                 invoker.SetCommand(command);
 
                 return await invoker.ExecuteCommand();
@@ -40,27 +41,27 @@ namespace Lab5LKPZ.Controllers
             [HttpGet("Appointments")]
             public async Task<IActionResult> GetMedicalAppointments()
             {
-                var appointments = await dbContext.MedicalAppointment.ToListAsync();
-                return Ok(appointments);
+                var command = new GetMedicalAppointmentsCommand(dbContext);
+
+                invoker.SetCommand(command);
+
+                return await invoker.ExecuteCommand();
             }
             [HttpGet("{id:int}/Appointments")]
             public async Task<IActionResult> GetMedicalRecordAppointments([FromRoute] int id)
             {
-                var record = await dbContext.MedicalRecords.Include(m => m.Appointments).FirstOrDefaultAsync(m => m.PatientID == id);
+                var command = new GetMedicalRecordAppointmentsCommand(dbContext, id);
 
-                if (record != null)
-                {
-                    return Ok(record.Appointments);
-                }
+                invoker.SetCommand(command);
 
-                return NotFound();
+                return await invoker.ExecuteCommand();
             }
             [HttpGet]
             [Route("{id:int}")]
             public async Task<IActionResult> GetMedicalRecordById([FromRoute] int id)
             {
                 var command = new GetMedicalRecordByIdCommand(dbContext,id);
-                var invoker = new CommandInvoker();
+              
                 invoker.SetCommand(command);
 
                 return await invoker.ExecuteCommand();
@@ -74,91 +75,43 @@ namespace Lab5LKPZ.Controllers
             public async Task<IActionResult> AddMedicalAppointment([FromRoute] int id,[FromBody] Model.AddMedicalAppointmentModel medicalAppointment)
             {
 
-                var record = MedicalAppointmentDataMapper.MapToEntity(medicalAppointment);
-                record.PatientID = id;
-                var medicalRecord = await dbContext.MedicalRecords
-                        .Include(m => m.Appointments) // Якщо ви хочете включити призначення
-                        .FirstOrDefaultAsync(m => m.PatientID == id);
+                var command = new AddMedicalAppointmentCommand(dbContext, id, medicalAppointment);
 
-                if (medicalRecord == null)
-                {
-                    return BadRequest(); // Повертаємо 404, якщо медичний запис не знайдено
-                }
-                await dbContext.MedicalAppointment.AddAsync(record);
+                invoker.SetCommand(command);
 
-                await dbContext.SaveChangesAsync();
-                return Ok(record);
+                return await invoker.ExecuteCommand();
 
-          
             }
             [HttpPost]
             public async Task<IActionResult> AddMedicalRecord(Model.AddMedicalRecordRequest medicalRecord)
             {
-                var record = Mapping.MedicalRecordDataMapper.MapToEntity(medicalRecord);
+                var command = new AddMedicalRecordCommand(dbContext, medicalRecord);
+           
+                invoker.SetCommand(command);
 
-                if (record.FirstName == null || record.LastName == null || record.MiddleName == null || Regex.IsMatch(record.FirstName, @"\d"))
-                {
-                    return BadRequest();
-                }
-                await dbContext.MedicalRecords.AddAsync(record);
-
-                await dbContext.SaveChangesAsync();
-                return Ok(record);
+                return await invoker.ExecuteCommand();
             }
 
             [HttpPut]
             [Route("{id:int}")]
             public async Task<IActionResult> UpdateMedicalRecord([FromRoute] int id, Model.UpdateMedicalRecordRequest updateMedicalRecordRequest)
             {
-                var record = await dbContext.MedicalRecords.FindAsync(id);
-                if (record != null)
-                {
+                var command = new UpdateMedicalRecordCommand(dbContext,id, updateMedicalRecordRequest);
+                
+                invoker.SetCommand(command);
 
-                    record = Mapping.MedicalRecordDataMapper.MapToEntity(updateMedicalRecordRequest, record);
-                  
-                    //  record.LastName = updateMedicalRecordRequest.LastName;
-                  //  record.FirstName = updateMedicalRecordRequest.FirstName;
-                  //  record.MiddleName = updateMedicalRecordRequest.MiddleName;
-                  ////  record.DateOfBirth = updateMedicalRecordRequest.DateOfBirth;
-                  //  record.Gender = updateMedicalRecordRequest.Gender;
-                  //  record.Address = updateMedicalRecordRequest.Address;
-                  //  record.PhoneNumber = updateMedicalRecordRequest.PhoneNumber;
-                  //  record.Email = updateMedicalRecordRequest.Email;
-                  //  record.VisitDates = updateMedicalRecordRequest.VisitDates;
-                  //  record.PreviousIllnesses = updateMedicalRecordRequest.PreviousIllnesses;
-                  //  record.Surgeries = updateMedicalRecordRequest.Surgeries;
-                  //  record.Allergies = updateMedicalRecordRequest.Allergies;
-                  //  record.Medications = updateMedicalRecordRequest.Medications;
-                  //  record.DosageInstructions = updateMedicalRecordRequest.DosageInstructions;
-                  ////  record.LabTestDate = updateMedicalRecordRequest.LabTestDate;
-                  //  record.LabTestResults = updateMedicalRecordRequest.LabTestResults;
-                  //  record.Immunizations = updateMedicalRecordRequest.Immunizations;
-                  //  record.DoctorsNotes = updateMedicalRecordRequest.DoctorsNotes;
-                  //  record.EmergencyContacts = updateMedicalRecordRequest.EmergencyContacts;
-                    if(record.FirstName == "" || record.MiddleName=="" || record.LastName == "")
-                    {
-                        return BadRequest(record);
-                    }
-                    await dbContext.SaveChangesAsync();
-                    return Ok(record);
-                }
-
-                return NotFound();
+                return await invoker.ExecuteCommand();
             }
 
             [HttpDelete]
             [Route("{id:int}")]
             public async Task<IActionResult> DeleteMedicalRecord([FromRoute] int id)
             {
-                var record = await dbContext.MedicalRecords.FindAsync(id);
-                if (record != null)
-                {
-                    dbContext.MedicalRecords.Remove(record);
-                    await dbContext.SaveChangesAsync();
-                    return Ok(record);
-                }
+                var command = new DeleteMedicalRecordCommand(dbContext, id);
+                
+                invoker.SetCommand(command);
 
-                return NotFound();
+                return await invoker.ExecuteCommand();
             }
             [HttpGet("GetPatients")]
             public async Task<IActionResult> GetPatients(
