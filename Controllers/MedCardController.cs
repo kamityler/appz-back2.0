@@ -10,7 +10,6 @@ using Lab5LKPZ.Mapping;
 using Lab5LKPZ.Command;
 using Lab5LKPZ.Interfaces;
 using System.Collections.Generic;
-using Lab5LKPZ.Command.DoctorsCommand;
 
 namespace Lab5LKPZ.Controllers
 {
@@ -39,18 +38,11 @@ namespace Lab5LKPZ.Controllers
 
                 return await invoker.ExecuteCommand();
             }
-            [HttpGet("{id}/Doctor")]
-            public async Task<IActionResult> GetDoctorById(int id)
-            {
-                var command = new GetDoctorByIdCommand(dbContext, id);
-
-                invoker.SetCommand(command);
-
-                return await invoker.ExecuteCommand();
-            }
             [HttpGet("{id}/Patients")]
             public async Task<IActionResult> GetPatientsByDoctor(int id)
-            {    
+            {
+       
+                
                 var command = new GetPatientsByDoctorCommand(dbContext,id);
 
                 invoker.SetCommand(command);
