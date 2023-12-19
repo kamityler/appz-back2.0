@@ -5,7 +5,7 @@ using System;
 
 namespace Lab5LKPZ.Command
 {
-    public class DeleteMedicalRecordCommand: Controller, ICommand
+    public class DeleteMedicalRecordCommand : Controller, ICommand
     {
         private readonly MedicalApiDbContext dbContext;
         private readonly int _id;
@@ -13,7 +13,7 @@ namespace Lab5LKPZ.Command
         public DeleteMedicalRecordCommand(MedicalApiDbContext dbContext, int id)
         {
             this.dbContext = dbContext;
-            this._id = id;
+            _id = id;
         }
         public async Task<IActionResult> Execute()
         {

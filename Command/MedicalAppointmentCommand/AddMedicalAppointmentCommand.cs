@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Lab5LKPZ.Command
 {
-    public class AddMedicalAppointmentCommand: Controller, ICommand
+    public class AddMedicalAppointmentCommand : Controller, ICommand
     {
         private readonly MedicalApiDbContext dbContext;
         private readonly int id;

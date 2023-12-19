@@ -4,6 +4,12 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Lab5LKPZ.Mapping;
+using Lab5LKPZ.Command;
+using Lab5LKPZ.Interfaces;
+using System.Collections.Generic;
+using Lab5LKPZ.Command.DoctorsCommand;
+
 
 namespace Lab5LKPZ.Controllers
 {
@@ -26,6 +32,26 @@ namespace Lab5LKPZ.Controllers
             {
                 return Ok(await this.dbContext.MedicalRecords.Include(m => m.Appointments).ToListAsync());
             }
+            [HttpGet("{id}/Doctor")]
+            public async Task<IActionResult> GetDoctorById(int id)
+            {
+                var command = new GetDoctorByIdCommand(dbContext, id);
+
+                invoker.SetCommand(command);
+
+                return await invoker.ExecuteCommand();
+            }
+            [HttpGet("{id}/Patients")]
+            public async Task<IActionResult> GetPatientsByDoctor(int id)
+            {    
+                var command = new GetPatientsByDoctorCommand(dbContext,id);
+
+                invoker.SetCommand(command);
+
+                return await invoker.ExecuteCommand();
+            }
+
+
             [HttpGet("Appointments")]
             public async Task<IActionResult> GetMedicalAppointments()
             {
@@ -49,23 +75,13 @@ namespace Lab5LKPZ.Controllers
             [Route("{id:int}")]
             public async Task<IActionResult> GetMedicalRecordById([FromRoute] int id)
             {
-                try
-                {
-                    var medicalRecord = await dbContext.MedicalRecords
-                        .Include(m => m.Appointments)
-                        .FirstOrDefaultAsync(m => m.PatientID == id);
+                var command = new GetMedicalRecordByIdCommand(dbContext,id);
+              
+                invoker.SetCommand(command);
 
-                    if (medicalRecord == null)
-                    {
-                        return NotFound();
-                    }
+                return await invoker.ExecuteCommand();
+        
 
-                    return Ok(medicalRecord);
-                }
-                catch (Exception ex)
-                {
-                    return StatusCode(500, $"Internal Server Error: {ex.Message}");
-                }
             }
             [HttpPost]
             [Route("{id:int}/Appointments")]

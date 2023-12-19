@@ -56,6 +56,18 @@ namespace Lab5LKPZ.Data
           .WithMany(r => r.Appointments)
           .HasForeignKey(m => m.PatientID);
 
+            modelBuilder.Entity<DoctorPatientRelation>()
+           .HasKey(dpr => new { dpr.DoctorID, dpr.PatientID });
+
+            modelBuilder.Entity<DoctorPatientRelation>()
+                .HasOne(dpr => dpr.Doctor)
+                .WithMany(d => d.Patients)
+                .HasForeignKey(dpr => dpr.DoctorID);
+
+            modelBuilder.Entity<DoctorPatientRelation>()
+                .HasOne(dpr => dpr.Patient)
+                .WithMany(p => p.Doctors)
+                .HasForeignKey(dpr => dpr.PatientID);
             // інші конфігурації можна додати тут
 
             base.OnModelCreating(modelBuilder);
@@ -64,7 +76,7 @@ namespace Lab5LKPZ.Data
         }
         public DbSet<Model.MedicalRecordModel> MedicalRecords { get; set; }
         public DbSet<Model.MedicalAppointmentModel> MedicalAppointment { get; set; }
-
-
+        public DbSet<DoctorModel> Doctors { get; set; }
+        public DbSet<DoctorPatientRelation> DoctorPatientRelation { get; set; }
     }
 }
