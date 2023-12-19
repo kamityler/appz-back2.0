@@ -10,6 +10,7 @@ using Lab5LKPZ.Mapping;
 using Lab5LKPZ.Command;
 using Lab5LKPZ.Interfaces;
 using System.Collections.Generic;
+using Lab5LKPZ.Command.DoctorsCommand;
 
 namespace Lab5LKPZ.Controllers
 {
@@ -38,27 +39,23 @@ namespace Lab5LKPZ.Controllers
 
                 return await invoker.ExecuteCommand();
             }
-            [HttpGet("{id}/Patients")]
-            public async Task<ActionResult<IEnumerable<MedicalRecordModel>>> GetPatientsByDoctor(int id)
+            [HttpGet("{id}/Doctor")]
+            public async Task<IActionResult> GetDoctorById(int id)
             {
-                // Знайдемо лікаря за його id
-                var doctor = await dbContext.Doctors
-                    .Include(d => d.Patients)
-                    .FirstOrDefaultAsync(d => d.DoctorID == id);
+                var command = new GetDoctorByIdCommand(dbContext, id);
 
-                if (doctor == null)
-                {
-                    return NotFound(); // Якщо лікар не знайдений, повертаємо 404 Not Found
-                }
-                var patientIds = doctor.Patients.Select(dp => dp.PatientID).ToList();
+                invoker.SetCommand(command);
 
-                // Завантажуємо пацієнтів з бази даних
-                var patients = await dbContext.MedicalRecords
-                    .Where(p => patientIds.Contains(p.PatientID))
-                    .ToListAsync();
-                return Ok(patients);
-                // Повертаємо список пацієнтів, призначених цьому лікарю
-               //return Ok(doctor.Patients);
+                return await invoker.ExecuteCommand();
+            }
+            [HttpGet("{id}/Patients")]
+            public async Task<IActionResult> GetPatientsByDoctor(int id)
+            {    
+                var command = new GetPatientsByDoctorCommand(dbContext,id);
+
+                invoker.SetCommand(command);
+
+                return await invoker.ExecuteCommand();
             }
 
 

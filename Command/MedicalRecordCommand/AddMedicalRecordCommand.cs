@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace Lab5LKPZ.Command
 {
-    public class AddMedicalRecordCommand: Controller, ICommand
+    public class AddMedicalRecordCommand : Controller, ICommand
     {
         private readonly MedicalApiDbContext dbContext;
         private readonly AddMedicalRecordRequest medicalRecord;

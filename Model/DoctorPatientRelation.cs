@@ -11,10 +11,8 @@ namespace Lab5LKPZ.Model
         [Key]
         public int PatientID { get; set; }
         [JsonIgnore]
-
         [ForeignKey("DoctorID")]
         public DoctorModel Doctor { get; set; }
-        [JsonIgnore]
 
         [ForeignKey("PatientID")]
         public MedicalRecordModel Patient { get; set; }
