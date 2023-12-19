@@ -1,17 +1,15 @@
-﻿using Lab5LKPZ.Interfaces;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace Lab5LKPZ.Model
 {
-    public class MedicalAppointmentModel : IMedicalAppointments
+    public class MedicalAppointmentModel
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int AppointmentID { get; set; }
         public int PatientID { get; set; }
+        public string AppointmentType { get; set; }
         public string Diagnosis { get; set; }
         public DateTime AppointmentDate { get; set; }
         public string Doctor { get; set; }
