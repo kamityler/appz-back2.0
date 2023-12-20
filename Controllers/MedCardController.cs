@@ -12,6 +12,7 @@ using Lab5LKPZ.Interfaces;
 using System.Collections.Generic;
 using Lab5LKPZ.Command.DoctorsCommand;
 using Lab5LKPZ.Command.DiseaseCommand;
+using Lab5LKPZ.Command.MedicalAppointmentCommand;
 
 namespace Lab5LKPZ.Controllers
 {
@@ -46,6 +47,17 @@ namespace Lab5LKPZ.Controllers
 
 
                 var command = new GetDoctorByIdCommand(dbContext, id);
+
+                invoker.SetCommand(command);
+
+                return await invoker.ExecuteCommand();
+            }
+            [HttpGet("Doctor/Appointments/{id}")]
+            public async Task<IActionResult> GetMedicalAppointmetByDoctorId(int id)
+            {
+
+
+                var command = new GetMedicalAppointmetByDoctorIdCommand(dbContext, id);
 
                 invoker.SetCommand(command);
 

@@ -38,6 +38,7 @@ namespace Lab5LKPZ.Model
         public string EmergencyContacts { get; set; }
         public string Workplace { get; set; }
         public string Position { get; set; }
+        [JsonIgnore]
         public List<MedicalAppointmentModel> Appointments { get; set; }
         public List<Disease> Diseases { get; set; }
         [JsonIgnore]

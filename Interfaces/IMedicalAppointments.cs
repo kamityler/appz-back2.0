@@ -7,6 +7,8 @@ namespace Lab5LKPZ.Interfaces
     {
         public int PatientID { get; set; }
         public string Diagnosis { get; set; }
+        public int DoctorID { get; set; }
+        public string Type { get; set; }
         public DateTime AppointmentDate { get; set; }
         public string Doctor { get; set; }
         public string Description { get; set; }
