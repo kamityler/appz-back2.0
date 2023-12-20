@@ -35,7 +35,7 @@ namespace Lab5LKPZ.Mapping
                 existingRecord.FirstName = MedicalRecordModel.FirstName;
                 existingRecord.MiddleName = MedicalRecordModel.MiddleName;
                 existingRecord.LastName = MedicalRecordModel.LastName;
-            //existingRecord.DateOfBirth = MedicalRecordModel.DateOfBirth;
+                existingRecord.DateOfBirth = MedicalRecordModel.DateOfBirth;
                 existingRecord.Gender = MedicalRecordModel.Gender;
                 existingRecord.Address = MedicalRecordModel.Address;
                 existingRecord.PhoneNumber = MedicalRecordModel.PhoneNumber;
@@ -52,7 +52,13 @@ namespace Lab5LKPZ.Mapping
                 existingRecord.EmergencyContacts = MedicalRecordModel.EmergencyContacts;
                 existingRecord.Appointments = MedicalRecordModel.Appointments;
                 existingRecord.Diseases = MedicalRecordModel.Diseases;
-                return existingRecord;
+            existingRecord.Contingents = MedicalRecordModel.Contingents;
+            existingRecord.completionDate = MedicalRecordModel.completionDate;
+            existingRecord.Workplace = MedicalRecordModel.Workplace;
+            existingRecord.Position = MedicalRecordModel.Position;
+            existingRecord.groupDispensary = MedicalRecordModel.groupDispensary;
+            existingRecord.privilegeNumber = MedicalRecordModel.privilegeNumber;
+            return existingRecord;
             
             
         }

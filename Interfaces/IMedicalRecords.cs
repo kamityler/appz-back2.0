@@ -6,11 +6,16 @@ namespace Lab5LKPZ.Interfaces
 {
     public interface IMedicalRecords
     {
-     //   public int PatientID { get; set; }
+        //   public int PatientID { get; set; }
+        public int PatientID { get; set; }
         public string LastName { get; set; }
         public string FirstName { get; set; }
         public string MiddleName { get; set; }
-        //public DateTime DateOfBirth { get; set; }
+        public string DateOfBirth { get; set; }
+        public bool groupDispensary { get; set; }
+        public string completionDate { get; set; }
+        public string Contingents { get; set; }
+        public string privilegeNumber { get; set; }
         public string Gender { get; set; }
         public string Address { get; set; }
         public string PhoneNumber { get; set; }
@@ -26,6 +31,8 @@ namespace Lab5LKPZ.Interfaces
         public string Immunizations { get; set; }
         public string DoctorsNotes { get; set; }
         public string EmergencyContacts { get; set; }
+        public string Workplace { get; set; }
+        public string Position { get; set; }
         public List<MedicalAppointmentModel> Appointments { get; set; }
         public List<Disease> Diseases { get; set; }
 
