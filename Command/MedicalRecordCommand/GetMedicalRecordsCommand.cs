@@ -20,7 +20,12 @@ namespace Lab5LKPZ.Command
         }
         public async Task<IActionResult> Execute()
         {
-            return Ok(await MedicalRecordDataMapper.MapToModel(dbContext).Include(m => m.Appointments).ToListAsync());
+            var medicalRecords = await MedicalRecordDataMapper.MapToModel(dbContext)
+                                        
+                                        .Include(m => m.Diseases) // Додаємо Include для хворіб
+                                        .ToListAsync();
+
+            return Ok(medicalRecords);
         }
     }
 }

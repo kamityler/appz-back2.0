@@ -9,6 +9,7 @@ using Lab5LKPZ.Command;
 using Lab5LKPZ.Interfaces;
 using System.Collections.Generic;
 using Lab5LKPZ.Command.DoctorsCommand;
+using Lab5LKPZ.Command.DiseaseCommand;
 
 
 namespace Lab5LKPZ.Controllers
@@ -32,18 +33,51 @@ namespace Lab5LKPZ.Controllers
             {
                 return Ok(await this.dbContext.MedicalRecords.Include(m => m.Appointments).ToListAsync());
             }
-            [HttpGet("{id}/Doctor")]
+            [HttpGet("Doctor/{id}")]
             public async Task<IActionResult> GetDoctorById(int id)
             {
+
+
                 var command = new GetDoctorByIdCommand(dbContext, id);
 
                 invoker.SetCommand(command);
 
                 return await invoker.ExecuteCommand();
             }
+            [HttpGet("Disease/{id}")]
+            public async Task<IActionResult> GetDiseaseByPatientId(int id)
+            {
+                var command = new GetDiseaseByPatientIdCommand(dbContext,id);
+
+                invoker.SetCommand(command);
+
+                return await invoker.ExecuteCommand();
+            }
+            [HttpPost("Disease/{id}")]
+            public async Task<IActionResult> AddDiseaseByPatientId(int id, [FromBody] Model.Disease Disease)
+            {
+                var command = new AddDiseaseByPatientIdCommand(dbContext,id, Disease);
+
+                invoker.SetCommand(command);
+
+                return await invoker.ExecuteCommand();
+            }
+            [HttpPut("Disease/{id}")]
+            public async Task<IActionResult> UpdateDisease([FromRoute] int id, Model.Disease updateDisease)
+            {
+                var command = new UpdateDiseaseCommand(dbContext, id, updateDisease);
+
+                invoker.SetCommand(command);
+
+                return await invoker.ExecuteCommand();
+            }
+
+
             [HttpGet("{id}/Patients")]
             public async Task<IActionResult> GetPatientsByDoctor(int id)
-            {    
+            {
+       
+                
                 var command = new GetPatientsByDoctorCommand(dbContext,id);
 
                 invoker.SetCommand(command);
@@ -51,7 +85,7 @@ namespace Lab5LKPZ.Controllers
                 return await invoker.ExecuteCommand();
             }
 
-
+          
             [HttpGet("Appointments")]
             public async Task<IActionResult> GetMedicalAppointments()
             {
