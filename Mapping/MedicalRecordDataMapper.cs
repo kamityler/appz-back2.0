@@ -29,13 +29,12 @@ namespace Lab5LKPZ.Mapping
                 existingRecord = new MedicalRecordModel();
 
 
-            }
-            
-                
+            } 
                 existingRecord.FirstName = MedicalRecordModel.FirstName;
                 existingRecord.MiddleName = MedicalRecordModel.MiddleName;
                 existingRecord.LastName = MedicalRecordModel.LastName;
                 existingRecord.Gender = MedicalRecordModel.Gender;
+                existingRecord.DateOfBirth = MedicalRecordModel.DateOfBirth;
                 existingRecord.Address = MedicalRecordModel.Address;
                 existingRecord.PhoneNumber = MedicalRecordModel.PhoneNumber;
                 existingRecord.Email = MedicalRecordModel.Email;
