@@ -5,6 +5,11 @@
 .Lab5LKPZ.csproj
 .Lab5LKPZ.csproj.user
 Startup.cs
+<<<<<<< HEAD
 /data/BooksApiDbContext.cs
 .vs/Lab5LKPZ/FileContentIndex/5eeb318a-9553-4845-ac69-bea5fa79b18c.vsidx
-.vs/Lab5LKPZ/v17/.suo
+.vs/Lab5LKPZ/v17/
+n
+=======
+/data
+>>>>>>> 9c4e3a3cd5c0ca42d048f802afb9e2ccc7387623
