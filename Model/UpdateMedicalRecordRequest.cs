@@ -10,7 +10,7 @@ namespace Lab5LKPZ.Model
         public string LastName { get; set; }
         public string FirstName { get; set; }
         public string MiddleName { get; set; }
-        // public DateTime DateOfBirth { get; set; }
+        //public DateTime DateOfBirth { get; set; }
         public string Gender { get; set; }
         public string Address { get; set; }
         public string PhoneNumber { get; set; }
@@ -27,6 +27,8 @@ namespace Lab5LKPZ.Model
         public string DoctorsNotes { get; set; }
         public string EmergencyContacts { get; set; }
         public List<MedicalAppointmentModel> Appointments { get; set; }
+        public List<Disease> Diseases { get; set; }
+
 
     }
 }
