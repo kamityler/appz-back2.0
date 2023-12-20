@@ -1,15 +1,17 @@
-﻿using Lab5LKPZ.Model;
+﻿using Lab5LKPZ.Data;
+using Lab5LKPZ.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Lab5LKPZ.Mapping;
 using Lab5LKPZ.Command;
 using Lab5LKPZ.Interfaces;
 using System.Collections.Generic;
 using Lab5LKPZ.Command.DoctorsCommand;
-
+using Lab5LKPZ.Command.DiseaseCommand;
 
 namespace Lab5LKPZ.Controllers
 {
@@ -19,32 +21,71 @@ namespace Lab5LKPZ.Controllers
         [Route("api/[controller]")]
         public class MedicalRecordsController : Controller
         {
-            private readonly Data.BooksApiDbContext dbContext;
+            private readonly MedicalApiDbContext dbContext;
+            private readonly CommandInvoker invoker;           // private readonly Data.MedicalApiDbContext dbContext;
 
-            public MedicalRecordsController(Data.BooksApiDbContext dbContext)
+            public MedicalRecordsController(Data.MedicalApiDbContext dbContext)
             {
-                this.dbContext = dbContext;
+                this.dbContext = MedicalApiDbContext.Instance;
+                this.invoker = new CommandInvoker();
             }
-            
+
 
             [HttpGet]
             public async Task<IActionResult> GetMedicalRecords()
             {
-                return Ok(await this.dbContext.MedicalRecords.Include(m => m.Appointments).ToListAsync());
+                var command = new GetMedicalRecordsCommand(dbContext);
+
+                invoker.SetCommand(command);
+
+                return await invoker.ExecuteCommand();
             }
-            [HttpGet("{id}/Doctor")]
+            [HttpGet("Doctor/{id}")]
             public async Task<IActionResult> GetDoctorById(int id)
             {
+
+
                 var command = new GetDoctorByIdCommand(dbContext, id);
 
                 invoker.SetCommand(command);
 
                 return await invoker.ExecuteCommand();
             }
+            [HttpGet("Disease/{id}")]
+            public async Task<IActionResult> GetDiseaseByPatientId(int id)
+            {
+                var command = new GetDiseaseByPatientIdCommand(dbContext, id);
+
+                invoker.SetCommand(command);
+
+                return await invoker.ExecuteCommand();
+            }
+            [HttpPost("Disease/{id}")]
+            public async Task<IActionResult> AddDiseaseByPatientId(int id, [FromBody] Model.Disease Disease)
+            {
+                var command = new AddDiseaseByPatientIdCommand(dbContext, id, Disease);
+
+                invoker.SetCommand(command);
+
+                return await invoker.ExecuteCommand();
+            }
+            [HttpPut("Disease/{id}")]
+            public async Task<IActionResult> UpdateDisease([FromRoute] int id, Model.Disease updateDisease)
+            {
+                var command = new UpdateDiseaseCommand(dbContext, id, updateDisease);
+
+                invoker.SetCommand(command);
+
+                return await invoker.ExecuteCommand();
+            }
+
+
             [HttpGet("{id}/Patients")]
             public async Task<IActionResult> GetPatientsByDoctor(int id)
-            {    
-                var command = new GetPatientsByDoctorCommand(dbContext,id);
+            {
+
+
+                var command = new GetPatientsByDoctorCommand(dbContext, id);
 
                 invoker.SetCommand(command);
 
@@ -55,131 +96,73 @@ namespace Lab5LKPZ.Controllers
             [HttpGet("Appointments")]
             public async Task<IActionResult> GetMedicalAppointments()
             {
-                var appointments = await dbContext.MedicalAppointment.ToListAsync();
-                return Ok(appointments);
+                var command = new GetMedicalAppointmentsCommand(dbContext);
+
+                invoker.SetCommand(command);
+
+                return await invoker.ExecuteCommand();
             }
-            
+
             [HttpGet("{id:int}/Appointments")]
             public async Task<IActionResult> GetMedicalRecordAppointments([FromRoute] int id)
             {
-                var record = await dbContext.MedicalRecords.Include(m => m.Appointments).FirstOrDefaultAsync(m => m.PatientID == id);
+                var command = new GetMedicalRecordAppointmentsCommand(dbContext, id);
 
-                if (record != null)
-                {
-                    return Ok(record.Appointments);
-                }
+                invoker.SetCommand(command);
 
-                return NotFound();
+                return await invoker.ExecuteCommand();
             }
             [HttpGet]
             [Route("{id:int}")]
             public async Task<IActionResult> GetMedicalRecordById([FromRoute] int id)
             {
-                var command = new GetMedicalRecordByIdCommand(dbContext,id);
-              
+                var command = new GetMedicalRecordByIdCommand(dbContext, id);
+
                 invoker.SetCommand(command);
 
                 return await invoker.ExecuteCommand();
-        
 
             }
             [HttpPost]
             [Route("{id:int}/Appointments")]
-            public async Task<IActionResult> AddMedicalAppointment([FromRoute] int id,[FromBody] Model.AddMedicalAppointmentModel medicalAppointment)
+            public async Task<IActionResult> AddMedicalAppointment([FromRoute] int id, [FromBody] Model.AddMedicalAppointmentModel medicalAppointment)
             {
 
-                var record = new Model.MedicalAppointmentModel()
-                {
-                    PatientID = id,
-                    Diagnosis = medicalAppointment.Diagnosis,
-                    AppointmentDate = medicalAppointment.AppointmentDate,
-                    Doctor = medicalAppointment.Doctor,
-                    Description = medicalAppointment.Description,
-                    Treatment = medicalAppointment.Treatment
-                };
+                var command = new AddMedicalAppointmentCommand(dbContext, id, medicalAppointment);
 
-                await dbContext.MedicalAppointment.AddAsync(record);
-                await dbContext.SaveChangesAsync();
-                return Ok(record);
+                invoker.SetCommand(command);
 
-          
+                return await invoker.ExecuteCommand();
+
             }
             [HttpPost]
-            public async Task<IActionResult> AddMedicalRecord(Model.MedicalRecordModel medicalRecord)
+            public async Task<IActionResult> AddMedicalRecord(Model.AddMedicalRecordRequest medicalRecord)
             {
-                var record = new Model.MedicalRecordModel()
-                {
-                    LastName = medicalRecord.LastName,
-                    FirstName = medicalRecord.FirstName,
-                    MiddleName = medicalRecord.MiddleName,
-                    DateOfBirth = medicalRecord.DateOfBirth,
-                    Gender = medicalRecord.Gender,
-                    Address = medicalRecord.Address,
-                    PhoneNumber = medicalRecord.PhoneNumber,
-                    Email = medicalRecord.Email,
-                    VisitDates = medicalRecord.VisitDates,
-                    PreviousIllnesses = medicalRecord.PreviousIllnesses,
-                    Surgeries = medicalRecord.Surgeries,
-                    Allergies = medicalRecord.Allergies,
-                    Medications = medicalRecord.Medications,
-                    DosageInstructions = medicalRecord.DosageInstructions,
-                    LabTestDate = medicalRecord.LabTestDate,
-                    LabTestResults = medicalRecord.LabTestResults,
-                    Immunizations = medicalRecord.Immunizations,
-                    DoctorsNotes = medicalRecord.DoctorsNotes,
-                    EmergencyContacts = medicalRecord.EmergencyContacts
-                };
+                var command = new AddMedicalRecordCommand(dbContext, medicalRecord);
 
-                await dbContext.MedicalRecords.AddAsync(record);
-                await dbContext.SaveChangesAsync();
-                return Ok(record);
+                invoker.SetCommand(command);
+
+                return await invoker.ExecuteCommand();
             }
             [HttpPut]
             [Route("{id:int}")]
             public async Task<IActionResult> UpdateMedicalRecord([FromRoute] int id, Model.UpdateMedicalRecordRequest updateMedicalRecordRequest)
             {
-                var record = await dbContext.MedicalRecords.FindAsync(id);
-                if (record != null)
-                {
-                    record.LastName = updateMedicalRecordRequest.LastName;
-                    record.FirstName = updateMedicalRecordRequest.FirstName;
-                    record.MiddleName = updateMedicalRecordRequest.MiddleName;
-                    record.DateOfBirth = updateMedicalRecordRequest.DateOfBirth;
-                    record.Gender = updateMedicalRecordRequest.Gender;
-                    record.Address = updateMedicalRecordRequest.Address;
-                    record.PhoneNumber = updateMedicalRecordRequest.PhoneNumber;
-                    record.Email = updateMedicalRecordRequest.Email;
-                    record.VisitDates = updateMedicalRecordRequest.VisitDates;
-                    record.PreviousIllnesses = updateMedicalRecordRequest.PreviousIllnesses;
-                    record.Surgeries = updateMedicalRecordRequest.Surgeries;
-                    record.Allergies = updateMedicalRecordRequest.Allergies;
-                    record.Medications = updateMedicalRecordRequest.Medications;
-                    record.DosageInstructions = updateMedicalRecordRequest.DosageInstructions;
-                    record.LabTestDate = updateMedicalRecordRequest.LabTestDate;
-                    record.LabTestResults = updateMedicalRecordRequest.LabTestResults;
-                    record.Immunizations = updateMedicalRecordRequest.Immunizations;
-                    record.DoctorsNotes = updateMedicalRecordRequest.DoctorsNotes;
-                    record.EmergencyContacts = updateMedicalRecordRequest.EmergencyContacts;
+                var command = new UpdateMedicalRecordCommand(dbContext, id, updateMedicalRecordRequest);
 
-                    await dbContext.SaveChangesAsync();
-                    return Ok(record);
-                }
+                invoker.SetCommand(command);
 
-                return NotFound();
+                return await invoker.ExecuteCommand();
             }
             [HttpDelete]
             [Route("{id:int}")]
             public async Task<IActionResult> DeleteMedicalRecord([FromRoute] int id)
             {
-                var record = await dbContext.MedicalRecords.FindAsync(id);
-                if (record != null)
-                {
-                    dbContext.MedicalRecords.Remove(record);
-                    await dbContext.SaveChangesAsync();
-                    return Ok(record);
-                }
+                var command = new DeleteMedicalRecordCommand(dbContext, id);
 
-                return NotFound();
+                invoker.SetCommand(command);
+
+                return await invoker.ExecuteCommand();
             }
             [HttpGet("GetPatients")]
             public async Task<IActionResult> GetPatients(

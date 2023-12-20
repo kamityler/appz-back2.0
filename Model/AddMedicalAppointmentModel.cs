@@ -5,7 +5,7 @@ namespace Lab5LKPZ.Model
 {
     public class AddMedicalAppointmentModel : IMedicalAppointments
     {
-        
+
         public int PatientID { get; set; }
         public string Diagnosis { get; set; }
         public DateTime AppointmentDate { get; set; }

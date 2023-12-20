@@ -22,7 +22,7 @@ namespace Lab5LKPZ.Command
             try
             {
                 var medicalRecord = await dbContext.MedicalRecords
-                    .Include(m => m.Appointments) // Якщо ви хочете включити призначення
+                    .Include(m => m.Diseases) // Якщо ви хочете включити призначення
                     .FirstOrDefaultAsync(m => m.PatientID == this._id);
 
 
