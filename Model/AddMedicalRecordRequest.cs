@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System;
-using Lab5LKPZ.Interfaces;
 
 namespace Lab5LKPZ.Model
 {
-    public class AddMedicalRecordRequest: IMedicalRecords
+    public class AddMedicalRecordRequest
     {
+
 
         public int PatientID { get; set; }
         public string LastName { get; set; }
@@ -27,11 +27,12 @@ namespace Lab5LKPZ.Model
         public string Allergies { get; set; }
         public string Medications { get; set; }
         public string DosageInstructions { get; set; }
-        // public DateTime LabTestDate { get; set; }
+        public DateTime LabTestDate { get; set; }
         public string LabTestResults { get; set; }
         public string Immunizations { get; set; }
         public string DoctorsNotes { get; set; }
         public string EmergencyContacts { get; set; }
+
         public string Workplace { get; set; }
         public string Position { get; set; }
         public List<MedicalAppointmentModel> Appointments { get; set; }

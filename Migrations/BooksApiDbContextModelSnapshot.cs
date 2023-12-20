@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Lab5LKPZ.Migrations
 {
-    [DbContext(typeof(MedicalApiDbContext))]
+    [DbContext(typeof(BooksApiDbContext))]
     partial class BooksApiDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
