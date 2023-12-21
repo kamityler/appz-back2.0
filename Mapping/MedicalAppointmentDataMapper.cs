@@ -21,6 +21,7 @@ namespace Lab5LKPZ.Mapping
 
             existingAppointment.PatientID = model.PatientID;
             existingAppointment.Diagnosis = model.Diagnosis;
+            existingAppointment.Type = model.Type;
             existingAppointment.AppointmentDate = model.AppointmentDate;
             existingAppointment.Doctor = model.Doctor;
             existingAppointment.Description = model.Description;
