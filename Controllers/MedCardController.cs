@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using Lab5LKPZ.Command.DoctorsCommand;
 using Lab5LKPZ.Command.DiseaseCommand;
 using Lab5LKPZ.Command.MedicalAppointmentCommand;
+using Lab5LKPZ.Command.VaccinationCommand;
 
 namespace Lab5LKPZ.Controllers
 {
@@ -129,6 +130,26 @@ namespace Lab5LKPZ.Controllers
             public async Task<IActionResult> GetMedicalRecordById([FromRoute] int id)
             {
                 var command = new GetMedicalRecordByIdCommand(dbContext, id);
+
+                invoker.SetCommand(command);
+
+                return await invoker.ExecuteCommand();
+
+            }
+            [HttpGet("Vactinations/{id:int}")]
+            public async Task<IActionResult> GetVactinationByPatinetId([FromRoute] int id)
+            {
+                var command = new GetVactinationByPatinetIdCommand(dbContext, id);
+
+                invoker.SetCommand(command);
+
+                return await invoker.ExecuteCommand();
+
+            }
+            [HttpPost("Vactinations/{id}")]
+            public async Task<IActionResult> AddVactinationByPatinetId([FromRoute] int id, [FromBody] Model.AddVactinationModel vactination)
+            {
+                var command = new AddVactinationByPatinetIdCommand(dbContext, id, vactination);
 
                 invoker.SetCommand(command);
 

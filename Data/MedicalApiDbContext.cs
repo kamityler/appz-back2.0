@@ -74,6 +74,10 @@ namespace Lab5LKPZ.Data
             .WithMany(p => p.Diseases)
             .HasForeignKey(d => d.PatientID)
             .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<VactinationModel>()
+            .HasOne(v => v.MedicalRecord)
+            .WithMany(m => m.Vaccination)
+            .HasForeignKey(v => v.PatientId);
 
             base.OnModelCreating(modelBuilder);
 
@@ -83,7 +87,7 @@ namespace Lab5LKPZ.Data
         public DbSet<Model.MedicalAppointmentModel> MedicalAppointment { get; set; }
         public DbSet<DoctorModel> Doctors { get; set; }
         public DbSet<Disease> Disease { get; set; }
-
+        public DbSet<VactinationModel> Vaccination { get; set; }
         public DbSet<DoctorPatientRelation> DoctorPatientRelation { get; set; }
     }
 }

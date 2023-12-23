@@ -43,6 +43,10 @@ namespace Lab5LKPZ.Model
         public List<Disease> Diseases { get; set; }
         [JsonIgnore]
         public List<DoctorPatientRelation> Doctors { get; set; } = new List<DoctorPatientRelation>();
+        [JsonIgnore]
 
+        public List<VactinationModel> Vaccination { get; set; }
     }
+
+    
 }

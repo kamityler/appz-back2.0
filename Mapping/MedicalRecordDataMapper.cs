@@ -45,7 +45,9 @@ namespace Lab5LKPZ.Mapping
                 existingRecord.Surgeries = MedicalRecordModel.Surgeries;
                 existingRecord.Allergies = MedicalRecordModel.Allergies;
                 existingRecord.Medications = MedicalRecordModel.Medications;
-                existingRecord.DosageInstructions = MedicalRecordModel.DosageInstructions;
+            existingRecord.DosageInstructions = MedicalRecordModel.DosageInstructions;
+
+            existingRecord.DosageInstructions = MedicalRecordModel.DosageInstructions;
                 existingRecord.LabTestResults = MedicalRecordModel.LabTestResults;
                 existingRecord.Immunizations = MedicalRecordModel.Immunizations;
                 existingRecord.DoctorsNotes = MedicalRecordModel.DoctorsNotes;
